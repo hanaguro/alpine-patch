@@ -1,0 +1,12 @@
+diff -uprN alpine-2.26/pith/charset.c alpine-2.26.new/pith/charset.c
+--- alpine-2.26/pith/charset.c	2022-06-03 09:14:00.491274749 +0900
++++ alpine-2.26.new/pith/charset.c	2023-02-09 13:26:43.983911257 +0900
+@@ -145,7 +145,7 @@ trans_euc_to_2022_jp(unsigned char *src)
+ #define	RFC1522_TERM_L	2
+ #define	RFC1522_DLIM	"?"
+ #define	RFC1522_DLIM_L	1
+-#define	RFC1522_MAXW	75	/* RFC's say 75, but no senders seem to care*/
++#define	RFC1522_MAXW	512	/* RFC's say 75, but no senders seem to care*/
+ #define	ESPECIALS	"()<>@,;:\"/[]?.="
+ #define	RFC1522_OVERHEAD(S)	(RFC1522_INIT_L + RFC1522_TERM_L +	\
+ 				 (2 * RFC1522_DLIM_L) + strlen(S) + 1);

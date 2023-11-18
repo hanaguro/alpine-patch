@@ -1,0 +1,170 @@
+diff -uprN alpine-2.26/alpine/keymenu.c alpine-2.26.new/alpine/keymenu.c
+--- alpine-2.26/alpine/keymenu.c	2022-06-03 09:14:00.463274817 +0900
++++ alpine-2.26.new/alpine/keymenu.c	2023-02-09 01:25:28.710492748 +0900
+@@ -671,7 +671,7 @@ struct key index_keys[] =
+ 	OTHER_MENU,
+ 	{":",N_("SelectCur"),{MC_SELCUR,1,{':'}},KS_SELECTCUR},
+ 	{"Z",N_("ZoomMode"),{MC_ZOOM,1,{'z'}},KS_ZOOM},
+-	LISTFLD_MENU,
++	NULL_MENU,
+ 	RCOMPOSE_MENU,
+ 	HOMEKEY_MENU,
+ 	ENDKEY_MENU,
+@@ -749,7 +749,7 @@ struct key thread_keys[] =
+ 	OTHER_MENU,
+ 	{":",N_("SelectCur"),{MC_SELCUR,1,{':'}},KS_SELECTCUR},
+ 	{"Z",N_("ZoomMode"),{MC_ZOOM,1,{'z'}},KS_ZOOM},
+-	LISTFLD_MENU,
++	NULL_MENU,
+ 	RCOMPOSE_MENU,
+ 	HOMEKEY_MENU,
+ 	ENDKEY_MENU,
+@@ -767,11 +767,13 @@ struct key att_index_keys[] =
+ 	{">","[" N_("View") "]",{MC_VIEW_ATCH,5,{'v','>','.',ctrl('M'),ctrl('J')}},
+ 	  KS_VIEW},
+ 	/* TRANSLATORS: go to Previous Attachment */
+-	{"P", N_("PrevAttch"),{MC_PREVITEM,4,{'p',ctrl('B'),ctrl('P'),KEY_UP}},
++// modified by takahiro
++	{"P", N_("PrevAttch"),{MC_PREVITEM,5,{'p','k',ctrl('B'),ctrl('P'),KEY_UP}},
+ 	  KS_PREVMSG},
+ 	/* TRANSLATORS: go to Next Attachment */
++// modified by takahiro
+ 	{"N", N_("NextAtch"),
+-	 {MC_NEXTITEM, 5, {'n','\t',ctrl('F'),ctrl('N'), KEY_DOWN}},
++	 {MC_NEXTITEM, 6, {'n','j','\t',ctrl('F'),ctrl('N'), KEY_DOWN}},
+ 	 KS_NEXTMSG},
+ 	PREVPAGE_MENU,
+ 	NEXTPAGE_MENU,
+@@ -1020,14 +1022,17 @@ struct key main_keys[] =
+ 	NULL_MENU,
+ 	NULL_MENU,
+ 	/* TRANSLATORS: go to Previous Command in list */
+-	{"P",N_("PrevCmd"),{MC_PREVITEM,3,{'p',ctrl('P'),KEY_UP}},KS_NONE},
+-	{"N",N_("NextCmd"),{MC_NEXTITEM,3,{'n',ctrl('N'),KEY_DOWN}},KS_NONE},
++// modified by takahiro
++	{"P",N_("PrevCmd"),{MC_PREVITEM,4,{'p','k',ctrl('P'),KEY_UP}},KS_NONE},
++	{"N",N_("NextCmd"),{MC_NEXTITEM,4,{'n','j',ctrl('N'),KEY_DOWN}},KS_NONE},
+ 	NULL_MENU,
+ 	NULL_MENU,
+ 	/* TRANSLATORS: show release notes */
+ 	{"R",N_("RelNotes"),{MC_RELNOTES,1,{'r'}},KS_NONE},
+ 	/* TRANSLATORS: lock keyboard */
+-	{"K",N_("KBLock"),{MC_KBLOCK,1,{'k'}},KS_NONE},
++// modified by takahiro
++//	{"K",N_("KBLock"),{MC_KBLOCK,1,{'k'}},KS_NONE},
++	NULL_MENU,
+ 	NULL_MENU,
+ 	NULL_MENU,
+ 
+@@ -1040,7 +1045,9 @@ struct key main_keys[] =
+ 	{"I",N_("Index"),{MC_INDEX,1,{'i'}},KS_FLDRINDEX},
+ 	/* TRANSLATORS: go to the Journal. The Journal shows past
+ 	   messages that alpine has shown the user. */
+-	{"J",N_("Journal"),{MC_JOURNAL,1,{'j'}},KS_REVIEW},
++// modified by takahiro
++//	{"J",N_("NextCmd"),{MC_NEXTITEM,1,{'j'}},KS_NONE},
++	NULL_MENU,
+ 	/* TRANSLATORS: go to the Setup screen */
+ 	{"S",N_("Setup"),{MC_SETUP,1,{'s'}},KS_NONE},
+ 	/* TRANSLATORS: go to the address book screen */
+@@ -3827,18 +3834,26 @@ menu_command(UCS keystroke, struct key_m
+ 
+       case ctrl('P') :
+       case KEY_UP :
++	  // modified by takahiro
++	  case 'k':
+ 	return(MC_CHARUP);
+ 
+       case ctrl('N') :
+       case KEY_DOWN :
++	  // modified by takahiro
++	  case 'j':
+ 	return(MC_CHARDOWN);
+ 
+       case ctrl('F') :
+       case KEY_RIGHT :
++	  // modified by takahiro
++	  case 'l':
+ 	return(MC_CHARRIGHT);
+ 
+       case ctrl('B') :
+       case KEY_LEFT :
++	  // modified by takahiro
++	  case 'h':
+ 	return(MC_CHARLEFT);
+ 
+       case ctrl('A') :
+diff -uprN alpine-2.26/alpine/keymenu.h alpine-2.26.new/alpine/keymenu.h
+--- alpine-2.26/alpine/keymenu.h	2022-06-03 09:14:00.463274817 +0900
++++ alpine-2.26.new/alpine/keymenu.h	2023-02-09 01:33:13.875525141 +0900
+@@ -270,11 +270,11 @@ struct key_menu {
+ 			 KS_EXIT}
+ /* TRANSLATORS: go to Previous Message */
+ #define	PREVMSG_MENU	{"P", N_("PrevMsg"), \
+-			 {MC_PREVITEM, 1, {'p'}}, \
++			 {MC_PREVITEM, 2, {'p','k'}}, \
+ 			 KS_PREVMSG}
+ /* TRANSLATORS: go to Next Message */
+ #define	NEXTMSG_MENU	{"N", N_("NextMsg"), \
+-			 {MC_NEXTITEM, 1, {'n'}}, \
++			 {MC_NEXTITEM, 2, {'n','j'}}, \
+ 			 KS_NEXTMSG}
+ #define	HOMEKEY_MENU	{"Hme", N_("FirstPage"), \
+ 			 {MC_HOMEKEY, 1, {KEY_HOME}}, \
+@@ -290,8 +290,9 @@ struct key_menu {
+ 			 {MC_PAGEDN, 4, {'+',' ',ctrl('V'),KEY_PGDN}}, \
+ 			 KS_NEXTPAGE}
+ /* TRANSLATORS: Jump to a different message in the index */
+-#define	JUMP_MENU	{"J", N_("Jump"), \
+-			 {MC_JUMP, 1, {'j'}}, \
++// modified by takahiro
++#define	JUMP_MENU	{"L", N_("Jump"), \
++			 {MC_JUMP, 1, {'l'}}, \
+ 			 KS_JUMPTOMSG}
+ /* TRANSLATORS: Forward Email */
+ #define	FWDEMAIL_MENU	{"F", N_("Fwd Email"), \
+@@ -415,11 +416,11 @@ struct key_menu {
+ 			 KS_NONE}
+ /* TRANSLATORS: go to the Previous Folder (in a list of folders). */
+ #define	PREVF_MENU	{"P", N_("PrevFldr"), \
+-			 {MC_PREV_HANDLE,3,{'p',ctrl('B'),KEY_LEFT}}, \
++			 {MC_PREV_HANDLE,4,{'p','h',ctrl('B'),KEY_LEFT}}, \
+ 			 KS_NONE}
+ /* TRANSLATORS: Next Folder (in a list of folders). */
+ #define	NEXTF_MENU	{"N", N_("NextFldr"), \
+-			 {MC_NEXT_HANDLE,4,{'n',ctrl('F'),TAB,KEY_RIGHT}}, \
++			 {MC_NEXT_HANDLE,5,{'n','l',ctrl('F'),TAB,KEY_RIGHT}}, \
+ 			 KS_NONE}
+ /* TRANSLATORS: Current Index of messages (go to the current index) */
+ #define	CIND_MENU	{"I", N_("CurIndex"), \
+diff -uprN alpine-2.26/pico/pilot.c alpine-2.26.new/pico/pilot.c
+--- alpine-2.26/pico/pilot.c	2022-06-03 09:14:00.487274758 +0900
++++ alpine-2.26.new/pico/pilot.c	2023-02-09 01:25:28.713825879 +0900
+@@ -331,9 +331,10 @@ Loop:
+ 	  case 'f':			/* -f for function key use */
+ 	    gmode ^= MDFKEY;
+ 	    break;
+-	  case 'j':			/* allow "Goto" in file browser */
+-	    gmode ^= MDGOTO;
+-	    break;
++// modified by takahiro
++//	  case 'j':			/* allow "Goto" in file browser */
++//	    gmode ^= MDGOTO;
++//	    break;
+ 	  case 'g':			/* show-cursor in file browser */
+ 	    gmode ^= MDSHOCUR;
+ 	    break;
+@@ -352,9 +353,10 @@ Loop:
+ 	  case 'z':			/* -z to suspend */
+ 	    gmode ^= MDSSPD;
+ 	    break;
+-	  case 'h':
+-	    usage++;
+-	    break;
++// modified by takahiro
++//	  case 'h':
++//	    usage++;
++//	    break;
+ 
+ 	  /*
+ 	   * These do take arguments.
